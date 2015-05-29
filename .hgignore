@@ -34,3 +34,9 @@ syntax: glob
 *.scc
 __pycache__
 build
+
+syntax: regexp
+^src
+^pkg
+^runit-.*\.tar\.gz
+^void-runit$
