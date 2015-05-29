@@ -40,3 +40,4 @@ syntax: regexp
 ^pkg
 ^runit-.*\.tar\.gz
 ^void-runit$
+^arch-runit-[._0-9]+-[0-9]+-.*.pkg.tar.xz
