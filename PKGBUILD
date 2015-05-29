@@ -27,10 +27,10 @@ sha256sums=('6fd0160cb0cf1207de4e66754b6d39750cff14bb0aa66ab49490992c0c47ba18'
 depends=()
 makedepends=('git')
 optdepends=()
-provides=('arch-runit')
+provides=('arch-runit' 'runit')
 conflicts=(
-		runit systemd libsystemd ignite ignite-git
-		runit runit-desktop runit-dietlibc runit-init
+		ignite ignite-git
+		runit-desktop runit-dietlibc runit-init
 		runit-musl runit-run
 		runit-run-git
 		runit-scripts
