@@ -31,7 +31,7 @@ provides=('arch-runit' 'runit')
 conflicts=(
 		ignite ignite-git
 		runit-desktop runit-dietlibc runit-init
-		runit-musl runit-run
+		runit-musl
 		runit-run-git
 		runit-scripts
 		runit-services
