@@ -26,7 +26,7 @@ sha256sums=('6fd0160cb0cf1207de4e66754b6d39750cff14bb0aa66ab49490992c0c47ba18'
 			)
 depends=()
 makedepends=('git')
-optdepends=()
+optdepends=('arch-runit-services')
 provides=('arch-runit' 'runit')
 conflicts=(
 		ignite ignite-git
