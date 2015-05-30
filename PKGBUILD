@@ -42,19 +42,15 @@ conflicts=(
 prepare(){
 	cd "${srcdir}/admin"
 	local pd=runit-${_runit_ver}
-	if [ ! -f "${pd}/.makepkg.patched" ]; then
-		sed -i -e's,sbin/runit,usr/bin/runit,g' ${pd}/src/runit.h
-		sed -i -e's/ -static//g' ${pd}/src/Makefile
-		sed -i -e's:^char \*varservice ="/service/";$:char \*varservice ="/var/service/";:' ${pd}/src/sv.c
-		patch -d ${pd} -Np1 <${srcdir}/cross.patch
-		patch -d ${pd} -Np1 <${srcdir}/utmpset-time_t.patch
-		touch "${pd}/.makepkg.patched"
-	fi
+	sed -i -e's,sbin/runit,usr/bin/runit,g' ${pd}/src/runit.h
+	sed -i -e's/ -static//g' ${pd}/src/Makefile
+	sed -i -e's:^char \*varservice ="/service/";$:char \*varservice ="/var/service/";:' ${pd}/src/sv.c
+	patch -d ${pd} -Np1 <${srcdir}/cross.patch
+	patch -d ${pd} -Np1 <${srcdir}/utmpset-time_t.patch
+	touch "${pd}/.makepkg.patched"
 	cd "${srcdir}/void-runit"
-	if [ ! -f ".makepkg.patched" ]; then
-		patch -Np1 <${srcdir}/void-runit.patch
-		touch ".makepkg.patched"
-	fi
+	patch -Np1 <${srcdir}/void-runit.patch
+	touch ".makepkg.patched"
 	}
 
 build(){
