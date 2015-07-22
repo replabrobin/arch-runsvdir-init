@@ -1,30 +1,26 @@
-diff --git a/1 b/1
-index 6938bc8..65d64c5 100755
 --- a/1
 +++ b/1
-@@ -4,8 +4,11 @@
+@@ -4,8 +4,9 @@
  PATH=/usr/bin:/usr/sbin
  
  . /etc/runit/functions
-+if ! mountpoint -q /run; then
-+	[ -d /run ] && rm -rf /run
-+fi
++[ -d /run ] && rm -rf /run
  
 -msg "Welcome to Void!"
 +msg "Welcome to Arch with runit!"
  
  [ -r /etc/rc.conf ] && . /etc/rc.conf
  
-@@ -23,6 +26,7 @@ else
+@@ -22,7 +23,8 @@ else
+ 	chmod 0644 /var/log/dmesg.log
  fi
  
- mkdir -p /run/runit
+-mkdir -p /run/runit
++[ ! -d /run/runit ] && mkdir -p /run/runit
 +[ ! -d /run/lock ] && mkdir /run/lock
  install -m100 /dev/null /run/runit/stopit
  
  msg "Initialization complete, running stage 2..."
-diff --git a/2 b/2
-index 0a39298..0020949 100755
 --- a/2
 +++ b/2
 @@ -5,6 +5,9 @@ PATH=/usr/bin:/usr/sbin
@@ -37,17 +33,56 @@ index 0a39298..0020949 100755
      if [ -d /etc/runit/runsvdir/"$arg" ]; then
          echo "Runlevel detected: '$arg' (via kernel cmdline)"
          runlevel="$arg"
-diff --git a/Makefile b/Makefile
-index 5747f5f..2406ee0 100644
+@@ -17,5 +20,7 @@ runsvchdir "${runlevel}"
+ mkdir -p /run/runit/runsvdir
+ ln -s /etc/runit/runsvdir/current /run/runit/runsvdir/current
+ 
++if [ -z "$norunsvdir" ]; then
+ exec env - PATH=$PATH \
+-    runsvdir -P /run/runit/runsvdir/current 'log: ...........................................................................................................................................................................................................................................................................................................................................................................................................'
++	runsvdir -P /run/runit/runsvdir/current 'log: ...........................................................................................................................................................................................................................................................................................................................................................................................................'
++fi
+--- a/3
++++ b/3
+@@ -32,11 +32,24 @@ if [ -z "$VIRTUALIZATION" ]; then
+     udevadm control --exit
+ fi
+ 
+-msg "Sending TERM signal to processes..."
+-pkill --inverse -s0,1 -TERM
+-sleep 1
+-msg "Sending KILL signal to processes..."
+-pkill --inverse -s0,1 -KILL
++if [ "$(ps -p 1 -o comm=)" = "runsvdir" ]; then
++	me=$$
++	kids(){
++		echo $(pgrep -P 1 | sed -e'/^1$/d;/^'"$me"'$/d')
++		}
++	msg "Sending TERM signal to processes...$(kids)"
++	kill -TERM $(kids) 2>&1
++	sleep 1
++	msg "Sending KILL signal to processes...$(kids)"
++	kill -KILL $(kids) 2>&1
++	read -p "hit enter to continue" _
++else
++	msg "Sending TERM signal to processes...$(echo $(pgrep --inverse -s0,1))"
++	pkill --inverse -s0,1 -TERM
++	sleep 1
++	msg "Sending KILL signal to processes...$(echo $(pgrep --inverse -s0,1))"
++	pkill --inverse -s0,1 -KILL
++fi
+ 
+ if [ -z "$VIRTUALIZATION" ]; then
+     msg "Unmounting filesystems, disabling swap..."
 --- a/Makefile
 +++ b/Makefile
-@@ -1,4 +1,4 @@
+@@ -1,20 +1,19 @@
 -PREFIX ?=	/usr/local
 +PREFIX ?=	usr
  SCRIPTS=	1 2 3 ctrlaltdel
  
  all:
-@@ -6,15 +6,15 @@ all:
+-	$(CC) $(CFLAGS) halt.c -o halt $(LDFLAGS)
  	$(CC) $(CFLAGS) pause.c -o pause $(LDFLAGS)
  
  install:
@@ -72,7 +107,7 @@ index 5747f5f..2406ee0 100644
  	install -d ${DESTDIR}/${PREFIX}/share/man/man1
  	install -m644 pause.1 ${DESTDIR}/${PREFIX}/share/man/man1
  	install -d ${DESTDIR}/${PREFIX}/share/man/man8
-@@ -33,8 +33,6 @@ install:
+@@ -33,8 +32,6 @@ install:
  	install -m644 rc.conf ${DESTDIR}/etc
  	install -m755 rc.local ${DESTDIR}/etc
  	install -m755 rc.shutdown ${DESTDIR}/etc
@@ -81,8 +116,16 @@ index 5747f5f..2406ee0 100644
  	ln -sf /run/runit/reboot ${DESTDIR}/etc/runit/
  	ln -sf /run/runit/stopit ${DESTDIR}/etc/runit/
  	cp -aP runsvdir/* ${DESTDIR}/etc/runit/runsvdir/
-diff --git a/rc.conf b/rc.conf
-index 5dbad2e..7af3e37 100644
+diff --git a/halt b/halt
+index e69de29..7a8bf43 100755
+--- a/halt
++++ b/halt
+@@ -0,0 +1,5 @@
++#!/bin/sh
++case "`/user/bin/basename $0`" in
++	halt|poweroff) kill -TERM 1;;
++	reboot) kill -HUP 1;;
++esac
 --- a/rc.conf
 +++ b/rc.conf
 @@ -1,20 +1,20 @@
@@ -110,8 +153,6 @@ index 5dbad2e..7af3e37 100644
  
  # Console font to load, see setfont(8).
  #FONT="lat9w-16"
-diff --git a/rc.local b/rc.local
-index 3b80f85..7f65986 100644
 --- a/rc.local
 +++ b/rc.local
 @@ -1,4 +1,4 @@
