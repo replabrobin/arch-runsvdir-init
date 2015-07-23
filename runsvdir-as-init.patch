@@ -35,7 +35,14 @@
  
  void runsv(int no, char *name) {
    int pid;
-@@ -170,17 +174,21 @@
+@@ -164,23 +168,27 @@
+   time_t mtime =0;
+   int wstat;
+   int curdir;
+-  int pid;
++  int pid, tpid;
+   struct taia deadline;
+   struct taia now;
    struct taia stampcheck;
    char ch;
    int i;
@@ -65,12 +72,12 @@
    sig_catch(sig_term, s_term);
    sig_catch(sig_hangup, s_hangup);
    svdir =*argv++;
-@@ -273,10 +281,44 @@
+@@ -273,10 +281,45 @@
            rplog[rploglen -1] =ch;
          }
  
 +    if(exitsoon && sopt[0]){
-+      if ((pid =fork()) == -1) {
++      if ((pid=fork()) == -1) {
 +    		/*warn("unable to fork for ", sopt[0]);*/
 +			strerr_die3x(1, "unable to fork for", sopt[0], "\n");
 +  			}
@@ -82,12 +89,13 @@
 +	  	printf("transferring to %s\n", *sopt);
 +    	sig_uncatch(sig_hangup);
 +    	sig_uncatch(sig_term);
-+    	setsid();
 +      	pathexec_run(*sopt, (const char* const*)sopt, (const char* const*)environ);
 +      	fatal("unable to start  ", sopt[0]);
 +	  	}
 +	  else {
-+      	wait_pid(&wstat,pid);
++    	for (;;) {
++      		if((tpid =wait(&wstat)) <= 0 || tpid==pid) break;
++    		}
 +		if(i_am_init){
 +		switch(exitsoon){
 +    		case SIGTERM:
