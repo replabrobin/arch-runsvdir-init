@@ -143,6 +143,27 @@
  	ln -sf /run/runit/reboot ${DESTDIR}/etc/runit/
  	ln -sf /run/runit/stopit ${DESTDIR}/etc/runit/
  	cp -aP runsvdir/* ${DESTDIR}/etc/runit/runsvdir/
+--- a/halt.c
++++ b/halt.c
+@@ -14,14 +14,14 @@ int main(int argc, char *argv[]) {
+   int opt;
+   action_type action = NOOP;
+ 
+-  if (strcmp(__progname, "halt") == 0)
++  if (!strcmp(__progname, "halt") || !strcmp(__progname, "runit-halt"))
+     action = HALT;
+-  else if (strcmp(__progname, "reboot") == 0)
++  else if (!strcmp(__progname, "reboot") || !strcmp(__progname, "runit-reboot"))
+     action = REBOOT;
+-  else if (strcmp(__progname, "poweroff") == 0)
++  else if (!strcmp(__progname, "poweroff") || !strcmp(__progname, "runit-poweroff"))
+     action = POWEROFF;
+   else
+-    warnx("no default behavior, needs to be called as halt/reboot/poweroff.");
++    warnx("no default behavior, needs to be called as [runit-|]halt/reboot/poweroff.");
+ 
+   while ((opt = getopt(argc, argv, "dfhinw")) != -1)
+     switch (opt) {
 --- a/halt
 +++ b/halt
 @@ -0,0 +1,15 @@
