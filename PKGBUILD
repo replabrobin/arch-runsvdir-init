@@ -6,7 +6,7 @@
 # http://creativecommons.org/publicdomain/zero/1.0/
 
 pkgname=arch-runsvdir-init
-pkgver=2.1.2_20150603
+pkgver=0.1.0
 _runit_ver=2.1.2
 pkgrel=1
 pkgdesc='Arch native runit package'
@@ -23,8 +23,8 @@ sha256sums=('6fd0160cb0cf1207de4e66754b6d39750cff14bb0aa66ab49490992c0c47ba18'
 			'SKIP'
 			'51c17405558f5bbbe631d92a37adff872b9518fe1876a56b24efb05bedffae94'
 			'527f68f501cc9eb4bbab33f8ad374822624342c7d74b5c795efe4aac6b3f170a'
-			'52c4b752a4a3d4eb8005bf1b404dff3f0a5dcb93c3d9f659242f9c24aabae44d'
-			'7a017cdc2e64d84017d3d3ec2ca3024aee01427ec9c4ccdf79907c6f2bcb68ff'
+			'38ac28c7b6507aa28979235cdcb48d6f64ea3363ce1b07a1f253fed6554ff1b3'
+			'4db8c30c75cc78770ec9f131f803e21ce1ebfc3ef5f634383af086cf0ed325f5'
 			'ead703406985f77ce52da925125e7e5756652963b7c6d3fbeb9059bd7319cd89'
 			)
 depends=()
@@ -40,6 +40,7 @@ conflicts=(
 		runit-services
 		runit-services-git
 		void-runit
+		arch-runit
 		)
 
 prepare(){
@@ -73,11 +74,6 @@ build(){
 check(){
 	cd "${srcdir}/admin/runit-$_runit_ver"
 	make -C 'src' check
-	}
-
-pkgver(){
-	cd "$startdir/void-runit"
-	git show -s --format="%ci" HEAD | sed -e 's/-//g;s/ .*//;s/^/'${_runit_ver}'_/'
 	}
 
 package() {
