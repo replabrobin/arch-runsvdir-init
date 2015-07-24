@@ -1,12 +1,12 @@
 # Maintainer: replabrobin 
-#	hashup of void runit and base runit
-#	Archlinux package
-# 
+#	hashup of void runit and base runit to use runsvdir as init
+#	like the busybox runit
+#
 # copyright see
 # http://creativecommons.org/publicdomain/zero/1.0/
 
 pkgname=arch-runsvdir-init
-pkgver=0.1.0
+pkgver=0.2.0
 _runit_ver=2.1.2
 pkgrel=1
 pkgdesc='Arch native runit package'
